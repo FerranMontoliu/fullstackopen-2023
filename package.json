@@ -1,6 +1,7 @@
 {
   "name": "fullstackopen-2023",
   "version": "1.0.0",
-  "dependencies": {
+  "devDependencies": {
+    "prettier": "^3.0.1"
   }
 }
