@@ -4,11 +4,16 @@ const PersonForm = ({ onSubmit }) => {
     const [name, setName] = useState('')
     const [number, setNumber] = useState('')
 
+    const afterSubmit = () => {
+        setName('')
+        setNumber('')
+    }
+
     return (
         <form
             onSubmit={event => {
                 event.preventDefault()
-                onSubmit(name, number)
+                onSubmit({ name, number }, afterSubmit)
             }}>
             <div>
                 Name:{' '}
