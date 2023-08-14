@@ -3,8 +3,5 @@
   "version": "1.0.0",
   "devDependencies": {
     "prettier": "^3.0.1"
-  },
-  "dependencies": {
-    "morgan": "^1.10.0"
   }
 }
