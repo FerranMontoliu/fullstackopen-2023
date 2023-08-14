@@ -1,13 +1,42 @@
 const express = require('express')
+const morgan = require('morgan')
 
+// Define the port on which the server will run
 const PORT = 3001
+
+// Create an Express app
 const app = express()
 
+/**
+ * Custom token function for Morgan middleware.
+ * This token displays the request body for POST requests.
+ *
+ * @param {object} req - The Express request object.
+ * @returns {string} - The request body as a JSON string, or '-' for non-POST requests.
+ */
+morgan.token('req-body', req => {
+    if (req.method === 'POST') {
+        return JSON.stringify(req.body)
+    }
+
+    return '-'
+})
+
+// Use Morgan middleware with custom token and predefined format
+app.use(
+    morgan(
+        ':method :url :status :res[content-length] - :response-time ms :req-body',
+    ),
+)
+// Parse incoming JSON data
 app.use(express.json())
+
+// Start the server
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
 
+// Phonebook entries
 let phonebookEntries = [
     {
         id: 1,
@@ -31,10 +60,16 @@ let phonebookEntries = [
     },
 ]
 
+/**
+ * Generates a random ID between 0 and 1,000,000
+ *
+ * @returns {number} - A random ID between 0 and 1,000,000
+ */
 const generateRandomId = () => {
     return Math.floor(Math.random() * 1_000_000)
 }
 
+// Display info about the phonebook
 app.get('/info', (request, response) => {
     response.send(`
         <p>Phonebook has info for ${phonebookEntries.length} people</p>
@@ -42,10 +77,12 @@ app.get('/info', (request, response) => {
     `)
 })
 
+// Get all persons in the phonebook
 app.get('/api/persons', (request, response) => {
     response.json(phonebookEntries)
 })
 
+// Get a specific person by ID
 app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
     const person = phonebookEntries.find(person => person.id === id)
@@ -57,6 +94,7 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
+// Delete a specific person by ID
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
     phonebookEntries = phonebookEntries.filter(person => person.id !== id)
@@ -64,6 +102,7 @@ app.delete('/api/persons/:id', (request, response) => {
     response.status(204).end()
 })
 
+// Add a new person to the phonebook
 app.post('/api/persons', (request, response) => {
     if (!request.body.name) {
         return response.status(400).json({
