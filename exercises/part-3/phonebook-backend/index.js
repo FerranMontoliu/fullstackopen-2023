@@ -1,8 +1,9 @@
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 
 // Define the port on which the server will run
-const PORT = 3001
+const PORT = process.env.PORT ?? 3001
 
 // Create an Express app
 const app = express()
@@ -22,6 +23,8 @@ morgan.token('req-body', req => {
     return '-'
 })
 
+// Allow requests from all origins
+app.use(cors())
 // Use Morgan middleware with custom token and predefined format
 app.use(
     morgan(
@@ -30,6 +33,8 @@ app.use(
 )
 // Parse incoming JSON data
 app.use(express.json())
+// Make express show static content
+app.use(express.static('dist'))
 
 // Start the server
 app.listen(PORT, () => {
