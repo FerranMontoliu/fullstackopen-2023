@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 
 // Define the port on which the server will run
 const PORT = process.env.PORT ?? 3001
@@ -65,15 +67,6 @@ let phonebookEntries = [
     },
 ]
 
-/**
- * Generates a random ID between 0 and 1,000,000
- *
- * @returns {number} - A random ID between 0 and 1,000,000
- */
-const generateRandomId = () => {
-    return Math.floor(Math.random() * 1_000_000)
-}
-
 // Display info about the phonebook
 app.get('/info', (request, response) => {
     response.send(`
@@ -84,19 +77,30 @@ app.get('/info', (request, response) => {
 
 // Get all persons in the phonebook
 app.get('/api/persons', (request, response) => {
-    response.json(phonebookEntries)
+    Person.find({})
+        .then(allPersons => {
+            response.json(allPersons)
+        })
+        .catch(error => {
+            console.error(error)
+            response.status(500).end()
+        })
 })
 
 // Get a specific person by ID
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = phonebookEntries.find(person => person.id === id)
-
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
-    }
+    Person.findById(request.params.id)
+        .then(foundPerson => {
+            if (foundPerson) {
+                response.json(foundPerson)
+            } else {
+                response.status(404).end()
+            }
+        })
+        .catch(error => {
+            console.error(error)
+            response.status(400).send({ error: 'Malformatted id.' })
+        })
 })
 
 // Delete a specific person by ID
@@ -121,19 +125,18 @@ app.post('/api/persons', (request, response) => {
         })
     }
 
-    if (phonebookEntries.some(person => person.name === request.body.name)) {
-        return response.status(400).json({
-            error: 'Name must be unique.',
-        })
-    }
-
-    const person = {
+    const person = new Person({
         name: request.body.name,
         number: request.body.number,
-        id: generateRandomId(),
-    }
+    })
 
-    phonebookEntries = phonebookEntries.concat(person)
-
-    response.json(person)
+    person
+        .save()
+        .then(savedPerson => {
+            response.json(savedPerson)
+        })
+        .catch(error => {
+            console.error(error)
+            response.status(500).end()
+        })
 })
