@@ -34,16 +34,21 @@ morgan.token('req-body', req => {
  * @param {import('express').Response} response - The Express response object.
  * @param {import('express').NextFunction} next - The next middleware.
  *
- * @returns {void | import('express').Response} - If the error is a CastError, returns a response with a 400 status and an error message. Otherwise, calls the next middleware with the error.
+ * @returns {void | import('express').Response} - If the error is a CastError or a ValidationError, returns a response with a 400 status and an error message. Otherwise, calls the next middleware with the error.
  */
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
 
-    if (error.name === 'CastError') {
-        return response.status(400).send({ error: 'Malformatted id.' })
-    }
+    switch (error.name) {
+        case 'CastError':
+            return response.status(400).send({ error: 'Malformatted id.' })
 
-    next(error)
+        case 'ValidationError':
+            return response.status(400).json({ error: error.message })
+
+        default:
+            next(error)
+    }
 }
 
 /**
@@ -124,18 +129,6 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 // Add a new person to the phonebook
 app.post('/api/persons', (request, response, next) => {
-    if (!request.body.name) {
-        return response.status(400).json({
-            error: 'Name is missing.',
-        })
-    }
-
-    if (!request.body.number) {
-        return response.status(400).json({
-            error: 'Number is missing.',
-        })
-    }
-
     const person = new Person({
         name: request.body.name,
         number: request.body.number,
@@ -156,7 +149,11 @@ app.put('/api/persons/:id', (request, response, next) => {
         number: request.body.number,
     }
 
-    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    Person.findByIdAndUpdate(request.params.id, person, {
+        new: true,
+        runValidators: true,
+        context: 'query',
+    })
         .then(updatedPerson => {
             response.json(updatedPerson)
         })

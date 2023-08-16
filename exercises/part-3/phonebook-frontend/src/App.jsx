@@ -89,9 +89,7 @@ const App = () => {
                             `Information of person with name '${updatedPerson.name}' has already been removed from server.`,
                         )
                     } else {
-                        setError(
-                            `Error while trying to update person with name '${updatedPerson.name}'.`,
-                        )
+                        setError(error.response.data.error)
                     }
                 })
             return
@@ -108,9 +106,7 @@ const App = () => {
             })
             .catch(error => {
                 console.error(error)
-                setError(
-                    `Error while trying to create person with name '${newPerson.name}'.`,
-                )
+                setError(error.response.data.error)
             })
     }
 

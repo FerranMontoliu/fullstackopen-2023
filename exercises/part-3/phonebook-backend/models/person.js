@@ -18,8 +18,21 @@ mongoose
 
 // Define person schema
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+    name: {
+        type: String,
+        required: true,
+        minLength: 3,
+    },
+    number: {
+        type: String,
+        required: true,
+        minLength: 8,
+        validate: {
+            validator: text => /^\d{2,3}-\d+$/.test(text),
+            message: props =>
+                `${props.value} is not a valid phone number. The format should be 2 or 3 numbers, followed by a dash (-), and more numbers.`,
+        },
+    },
 })
 
 // Overwrite the toJSON function for the person schema
