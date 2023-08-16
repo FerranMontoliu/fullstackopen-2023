@@ -8,40 +8,40 @@ console.log('Connecting to', url)
 
 // Connect to MongoDB
 mongoose
-    .connect(url)
-    .then(result => {
-        console.log('Connected to MongoDB')
-    })
-    .catch(error => {
-        console.log('Error connecting to MongoDB:', error.message)
-    })
+  .connect(url)
+  .then(() => {
+    console.log('Connected to MongoDB')
+  })
+  .catch(error => {
+    console.log('Error connecting to MongoDB:', error.message)
+  })
 
 // Define person schema
 const personSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        minLength: 3,
+  name: {
+    type: String,
+    required: true,
+    minLength: 3,
+  },
+  number: {
+    type: String,
+    required: true,
+    minLength: 8,
+    validate: {
+      validator: text => /^\d{2,3}-\d+$/.test(text),
+      message: props =>
+        `${props.value} is not a valid phone number. The format should be 2 or 3 numbers, followed by a dash (-), and more numbers.`,
     },
-    number: {
-        type: String,
-        required: true,
-        minLength: 8,
-        validate: {
-            validator: text => /^\d{2,3}-\d+$/.test(text),
-            message: props =>
-                `${props.value} is not a valid phone number. The format should be 2 or 3 numbers, followed by a dash (-), and more numbers.`,
-        },
-    },
+  },
 })
 
 // Overwrite the toJSON function for the person schema
 personSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-        returnedObject.id = returnedObject._id.toString()
-        delete returnedObject._id
-        delete returnedObject.__v
-    },
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  },
 })
 
 // Define person model
