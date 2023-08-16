@@ -15,6 +15,7 @@ const app = express()
  * This token displays the request body for POST requests.
  *
  * @param {object} req - The Express request object.
+ *
  * @returns {string} - The request body as a JSON string, or '-' for non-POST requests.
  */
 morgan.token('req-body', req => {
@@ -24,6 +25,38 @@ morgan.token('req-body', req => {
 
     return '-'
 })
+
+/**
+ * Express middleware for handling errors.
+ *
+ * @param {Error} error - The error object.
+ * @param {import('express').Request} request - The Express request object.
+ * @param {import('express').Response} response - The Express response object.
+ * @param {import('express').NextFunction} next - The next middleware.
+ *
+ * @returns {void | import('express').Response} - If the error is a CastError, returns a response with a 400 status and an error message. Otherwise, calls the next middleware with the error.
+ */
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'Malformatted id.' })
+    }
+
+    next(error)
+}
+
+/**
+ * Express middleware for handling unknown endpoints.
+ *
+ * @param {import('express').Request} request - The Express request object.
+ * @param {import('express').Response} response - The Express response object.
+ *
+ * @returns {void} - Sends a 404 response with an error message for unknown endpoints.
+ */
+const unknownEndpointHandler = (request, response) => {
+    response.status(404).send({ error: 'Unknown endpoint.' })
+}
 
 // Allow requests from all origins
 app.use(cors())
@@ -43,36 +76,16 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
 
-// Phonebook entries
-let phonebookEntries = [
-    {
-        id: 1,
-        name: 'Arto Hellas',
-        number: '040-123456',
-    },
-    {
-        id: 2,
-        name: 'Ada Lovelace',
-        number: '39-44-5323523',
-    },
-    {
-        id: 3,
-        name: 'Dan Abramov',
-        number: '12-43-234345',
-    },
-    {
-        id: 4,
-        name: 'Mary Poppendieck',
-        number: '39-23-6423122',
-    },
-]
-
 // Display info about the phonebook
-app.get('/info', (request, response) => {
-    response.send(`
-        <p>Phonebook has info for ${phonebookEntries.length} people</p>
-        <p>${new Date()}</p>
-    `)
+app.get('/info', (request, response, next) => {
+    Person.count({})
+        .then(numEntries => {
+            response.send(`
+                <p>Phonebook has info for ${numEntries} people</p>
+                <p>${new Date()}</p>
+            `)
+        })
+        .catch(error => next(error))
 })
 
 // Get all persons in the phonebook
@@ -88,7 +101,7 @@ app.get('/api/persons', (request, response) => {
 })
 
 // Get a specific person by ID
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id)
         .then(foundPerson => {
             if (foundPerson) {
@@ -97,22 +110,20 @@ app.get('/api/persons/:id', (request, response) => {
                 response.status(404).end()
             }
         })
-        .catch(error => {
-            console.error(error)
-            response.status(400).send({ error: 'Malformatted id.' })
-        })
+        .catch(error => next(error))
 })
 
 // Delete a specific person by ID
-app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    phonebookEntries = phonebookEntries.filter(person => person.id !== id)
-
-    response.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+    Person.findByIdAndRemove(request.params.id)
+        .then(result => {
+            response.status(204).end()
+        })
+        .catch(error => next(error))
 })
 
 // Add a new person to the phonebook
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     if (!request.body.name) {
         return response.status(400).json({
             error: 'Name is missing.',
@@ -135,8 +146,24 @@ app.post('/api/persons', (request, response) => {
         .then(savedPerson => {
             response.json(savedPerson)
         })
-        .catch(error => {
-            console.error(error)
-            response.status(500).end()
-        })
+        .catch(error => next(error))
 })
+
+// Update a person from the phonebook
+app.put('/api/persons/:id', (request, response, next) => {
+    const person = {
+        name: request.body.name,
+        number: request.body.number,
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
+})
+
+// Handler of requests with unknown endpoint
+app.use(unknownEndpointHandler)
+// Error handling middleware
+app.use(errorHandler)

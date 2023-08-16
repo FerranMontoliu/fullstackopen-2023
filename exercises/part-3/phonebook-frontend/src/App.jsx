@@ -97,11 +97,11 @@ const App = () => {
             return
         }
 
-        const newPerson = { id: persons.length + 1, name, number }
+        const newPerson = { name, number }
         personsService
             .createPerson(newPerson)
             .then(response => {
-                setPersons([...persons, newPerson])
+                setPersons([...persons, response.data])
                 afterSubmit()
 
                 setInfo(`Added person with name '${newPerson.name}'.`)
