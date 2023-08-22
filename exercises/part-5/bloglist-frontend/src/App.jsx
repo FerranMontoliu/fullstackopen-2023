@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import LoginForm from './components/LoginForm.jsx'
 import AppContent from './components/AppContent.jsx'
 import Notification from './components/Notification.jsx'
+import Toggleable from './components/Toggleable.jsx'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState(null)
+  const blogFormRef = useRef()
 
   const setError = message => {
     setNotification({
@@ -33,9 +35,13 @@ const App = () => {
   }
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs(blogs)
-    )
+    blogService
+      .getAll()
+      .then(blogs_ => {
+        const sortedBlogs = [...blogs_]
+        sortedBlogs.sort((a, b) => b.likes - a.likes)
+        setBlogs(sortedBlogs)
+      })
   }, [])
 
   useEffect(() => {
@@ -47,22 +53,24 @@ const App = () => {
     }
   }, [])
 
-  const handleLogin = async (username, password, afterLogin) => {
-    try {
-      const user = await loginService.login({
-        username, password,
+  const handleLogin = (username, password, afterLogin) => {
+    loginService
+      .login({
+        username,
+        password,
       })
-
-      window.localStorage.setItem(
-        'loggedBloglistUser', JSON.stringify(user)
-      )
-      blogService.setToken(user.token)
-      setUser(user)
-      afterLogin()
-      setInfo(`Logged in as ${user.name}`)
-    } catch (error) {
-      setError(error.response.data.error)
-    }
+      .then((user) => {
+        window.localStorage.setItem(
+          'loggedBloglistUser', JSON.stringify(user)
+        )
+        blogService.setToken(user.token)
+        setUser(user)
+        afterLogin()
+        setInfo(`Logged in as ${user.name}`)
+      })
+      .catch((error) => {
+        setError(error.response.data.error)
+      })
   }
 
   const handleLogout = () => {
@@ -71,19 +79,99 @@ const App = () => {
     setUser(null)
   }
 
-  const handleBlogCreated = async (blog, afterCreation) => {
-    try {
-      const createdBlog = await blogService.create(blog)
-      setBlogs([...blogs, createdBlog])
-      afterCreation()
-      setInfo(`A new blog '${blog.title}' by '${blog.author}' added`)
-    } catch (error) {
-      setError(error.response.data.error)
+  const handleBlogCreated = (blog, afterCreation) => {
+    blogFormRef.current.toggleVisibility()
+
+    blogService
+      .createBlog(blog)
+      .then((createdBlog_) => {
+        const createdBlog = {
+          ...createdBlog_,
+          user: {
+            id: createdBlog_.user,
+            username: user.username,
+            name: user.name,
+          }
+        }
+
+        setBlogs([...blogs, createdBlog])
+        afterCreation()
+        setInfo(`A new blog '${blog.title}' by '${blog.author}' added`)
+      })
+      .catch((error) => {
+        setError(error.response.data.error)
+      })
+  }
+
+  const handleBlogLiked = (blog) => {
+    const updatedData = {
+      user: blog.user?.id,
+      likes: blog.likes + 1,
+      author: blog.author,
+      title: blog.title,
+      url: blog.url,
     }
+
+    blogService
+      .updateBlog(blog.id, updatedData)
+      .then((updatedBlog_) => {
+        const updatedBlog = {
+          ...updatedBlog_,
+          user: blog.user,
+        }
+
+        const blogToUpdateIndex = blogs.findIndex(
+          blog_ => blog_.id === blog.id,
+        )
+
+        if (blogToUpdateIndex === -1) {
+          return
+        }
+
+        const sortedBlogs = [...blogs]
+        sortedBlogs[blogToUpdateIndex] = updatedBlog
+        sortedBlogs.sort((a, b) => b.likes - a.likes)
+        setBlogs(sortedBlogs)
+
+        setInfo(`You liked the blog '${blog.title}' by '${blog.author}'.`)
+      })
+      .catch((error) => {
+        setError(error.response.data.error)
+      })
+  }
+
+  const handleBlogDeleted = ({ title, author, id }) => {
+    const isDeleteConfirmed = window.confirm(`Remove blog '${title}' by '${author}'?`)
+    if (!isDeleteConfirmed) {
+      return
+    }
+
+    blogService
+      .deleteBlog(id)
+      .then(() => {
+        const blogToDeleteIndex = blogs.findIndex(
+          blog => blog.id === id,
+        )
+
+        if (blogToDeleteIndex === -1) {
+          return
+        }
+
+        const blogs_ = [...blogs]
+        blogs_.splice(blogToDeleteIndex, 1)
+        setBlogs(blogs_)
+
+        setInfo(`Blog '${title}' by '${author}' removed successfully.`)
+      })
+      .catch((error) => {
+        setError(error.response.data.error)
+      })
   }
 
   return (
     <div>
+      <h1 style={{ color: 'teal', fontWeight: 'bold' }}>Blogs</h1>
+
       {notification !== null && (
         <Notification
           message={notification.message}
@@ -91,13 +179,21 @@ const App = () => {
         />
       )}
 
-      {user === null ?
-        <LoginForm handleLogin={handleLogin}/> :
+      {user === null &&
+          <Toggleable buttonLabel="Log in">
+            <LoginForm handleLogin={handleLogin} />
+          </Toggleable>
+      }
+
+      {user !== null &&
         <AppContent
           user={user}
           blogs={blogs}
           handleLogout={handleLogout}
-          handleBlogCreated={handleBlogCreated}/>
+          handleBlogCreated={handleBlogCreated}
+          handleBlogLiked={handleBlogLiked}
+          handleBlogDeleted={handleBlogDeleted}
+          blogFormRef={blogFormRef} />
       }
     </div>
   )
