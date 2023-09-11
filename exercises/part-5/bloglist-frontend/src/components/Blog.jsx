@@ -1,21 +1,21 @@
 import { useState } from 'react'
 
 const NonExpandedBlog = ({ blog, handleView }) => (
-  <div>
+  <div className="blog--not-expanded">
     {blog.title} {blog.author}
 
-    <button onClick={handleView}>View</button>
+    <button className="blog--expand-btn" onClick={handleView}>View</button>
   </div>
 )
 
 const ExpandedBlog = ({ user, blog, handleHide, handleBlogDeleted, handleBlogLiked }) => (
-  <div>
-    <p>{blog.title} {blog.author}<button onClick={handleHide}>Hide</button></p>
-    <a href={blog.url} target="_blank" rel="noreferrer">{blog.url}</a>
-    <p>Likes {blog.likes} <button onClick={() => handleBlogLiked(blog)}>Like</button></p>
-    <p>{blog.user?.name}</p>
+  <div className="blog--expanded">
+    <p className="blog--title-and-author">{blog.title} {blog.author}<button onClick={handleHide}>Hide</button></p>
+    <a className="blog--url" href={blog.url} target="_blank" rel="noreferrer">{blog.url}</a>
+    <p className="blog--likes">Likes {blog.likes} <button className="blog--like-btn" onClick={() => handleBlogLiked(blog)}>Like</button></p>
+    <p className="blog--user">{blog.user?.name}</p>
 
-    {user.username && user.username === blog.user?.username && <button onClick={() => handleBlogDeleted(blog)}>Remove</button>}
+    {user.username && user.username === blog.user?.username && <button className="blog--remove-btn" onClick={() => handleBlogDeleted(blog)}>Remove</button>}
   </div>
 )
 
@@ -31,7 +31,7 @@ const Blog = ({ user, blog, handleBlogLiked, handleBlogDeleted }) => {
   }
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className="blog--container">
       {isExpanded
         ? <ExpandedBlog
           user={user}
