@@ -21,7 +21,7 @@ const Notification = ({ message, type }) => {
             color: 'green',
           }
 
-  return <div style={styles}>{message}</div>
+  return <div className={type} style={styles}>{message}</div>
 }
 
 Notification.propTypes = {

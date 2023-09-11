@@ -2,7 +2,7 @@ import Blog from './Blog.jsx'
 
 const BlogList = ({ user, blogs, handleBlogLiked, handleBlogDeleted }) => {
   return(
-    <div style={{ marginTop: '1rem' }}>
+    <div className="blog-list--container" style={{ marginTop: '1rem' }}>
       {blogs.map(blog =>
         <Blog
           key={blog.id}
