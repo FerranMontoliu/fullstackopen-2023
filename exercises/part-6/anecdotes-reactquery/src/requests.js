@@ -7,10 +7,15 @@ export const getAnecdotes = () =>
     .get(baseUrl)
     .then(res => res.data)
 
-export const createAnecdote = (newAnecdote) =>
-  axios
+export const createAnecdote = (newAnecdote) => {
+  if (newAnecdote.content.length < 5) {
+    return Promise.reject('too short anecdote, must have length 5 or more')
+  }
+
+  return axios
     .post(baseUrl, newAnecdote)
     .then(res => res.data)
+}
 
 export const updateAnecdote = (updatedAnecdote) =>
   axios
