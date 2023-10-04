@@ -1,20 +1,21 @@
 import CreateBlogForm from './CreateBlogForm.jsx'
 import BlogList from './BlogList.jsx'
 import Toggleable from './Toggleable.jsx'
+import { useRef } from 'react'
 
 const AppContent = ({
   user,
-  blogs,
   handleLogout,
-  handleBlogCreated,
-  handleBlogLiked,
-  handleBlogDeleted,
-  blogFormRef
 }) => {
+  const blogFormRef = useRef()
 
   const onLogout = (event) => {
     event.preventDefault()
     handleLogout()
+  }
+
+  const toggleVisibility = () => {
+    blogFormRef.current.toggleVisibility()
   }
 
   return (
@@ -24,15 +25,10 @@ const AppContent = ({
       </div>
 
       <Toggleable buttonLabel="Create new blog" ref={blogFormRef}>
-        <CreateBlogForm handleBlogCreated={handleBlogCreated} />
+        <CreateBlogForm toggleVisibility={toggleVisibility}/>
       </Toggleable>
 
-      <BlogList
-        user={user}
-        blogs={blogs}
-        handleBlogLiked={handleBlogLiked}
-        handleBlogDeleted={handleBlogDeleted}
-      />
+      <BlogList user={user} />
     </div>
   )
 }

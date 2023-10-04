@@ -10,7 +10,11 @@ const setToken = (newToken) => {
 
 const getAll = async () => {
   const response = await axios.get(baseUrl)
-  return response.data
+
+  const sortedBlogs = [...response.data]
+  sortedBlogs.sort((a, b) => b.likes - a.likes)
+
+  return sortedBlogs
 }
 
 const createBlog = async (newObject) => {
@@ -22,8 +26,8 @@ const createBlog = async (newObject) => {
   return response.data
 }
 
-const updateBlog = async (id, updatedObject) => {
-  const response = await axios.put(`${baseUrl}/${id}`, updatedObject)
+const updateBlog = async ({ id, updatedData }) => {
+  const response = await axios.put(`${baseUrl}/${id}`, updatedData)
   return response.data
 }
 
