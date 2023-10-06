@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import blogService from '../services/blogs'
 import Blog from './Blog.jsx'
-import { Stack, Text } from '@mantine/core'
+import { Loader, Stack, Text } from '@mantine/core'
 
 const BlogList = () => {
   const result = useQuery({
@@ -10,7 +10,7 @@ const BlogList = () => {
   })
 
   if (result.isLoading) {
-    return <Text>Loading data...</Text>
+    return <Loader />
   }
 
   if (result.isError) {

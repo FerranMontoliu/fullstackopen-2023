@@ -15,7 +15,7 @@ const LoggedInUserInfo = () => {
   return (
     <Group justify="space-between" py="md">
       {user.name} logged in{' '}
-      <Button onClick={onLogout} variant="outline">
+      <Button onClick={onLogout} variant="outline" color="red">
         Log out
       </Button>
     </Group>
