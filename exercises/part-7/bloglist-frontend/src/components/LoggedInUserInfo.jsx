@@ -1,6 +1,6 @@
 import blogService from '../services/blogs.js'
 import { useUser } from '../contexts/UserContext.jsx'
-import { Button, Group } from '@mantine/core'
+import { Button, Group, Text } from '@mantine/core'
 
 const LoggedInUserInfo = () => {
   const [user, userDispatch] = useUser()
@@ -13,8 +13,9 @@ const LoggedInUserInfo = () => {
   }
 
   return (
-    <Group justify="space-between" py="md">
-      {user.name} logged in{' '}
+    <Group justify="space-between">
+      <Text>Logged in as <b>{user.name}</b></Text>
+
       <Button onClick={onLogout} variant="outline" color="red">
         Log out
       </Button>

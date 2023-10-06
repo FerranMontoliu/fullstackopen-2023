@@ -7,10 +7,10 @@ import AppNotification from './components/AppNotification.jsx'
 import Toggleable from './components/Toggleable.jsx'
 import { useUser } from './contexts/UserContext.jsx'
 import UsersScreen from './screens/UsersScreen.jsx'
-import LoggedInUserInfo from './components/LoggedInUserInfo.jsx'
 import UserScreen from './screens/UserScreen.jsx'
 import BlogScreen from './screens/BlogScreen.jsx'
-import { Container, Stack, Title } from '@mantine/core'
+import { Container, Stack } from '@mantine/core'
+import NavBar from './components/NavBar.jsx'
 
 const App = () => {
   const [user, userDispatch] = useUser()
@@ -25,9 +25,9 @@ const App = () => {
   }, [])
 
   return (
-    <Container>
+    <Container pt="xl">
       <Stack>
-        <Title order={1}>Blogs</Title>
+        {user !== null && <NavBar />}
 
         <AppNotification />
 
@@ -38,16 +38,12 @@ const App = () => {
         )}
 
         {user !== null && (
-          <Stack>
-            <LoggedInUserInfo />
-
-            <Routes>
-              <Route path="/users/:id" element={<UserScreen />} />
-              <Route path="/users" element={<UsersScreen />} />
-              <Route path="/blogs/:id" element={<BlogScreen />} />
-              <Route path="/" element={<BlogsScreen />} />
-            </Routes>
-          </Stack>
+          <Routes>
+            <Route path="/users/:id" element={<UserScreen />} />
+            <Route path="/users" element={<UsersScreen />} />
+            <Route path="/blogs/:id" element={<BlogScreen />} />
+            <Route path="/" element={<BlogsScreen />} />
+          </Routes>
         )}
       </Stack>
     </Container>
