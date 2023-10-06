@@ -47,6 +47,23 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const blogId = request.params.id
+
+  const comment = request.body.comment
+
+  const updatedBlog = await Blog.findByIdAndUpdate(
+    blogId,
+    { $push: { comments: comment } },
+    {
+      new: true,
+      runValidators: true,
+      context: 'query',
+    })
+
+  response.json(updatedBlog)
+})
+
 blogsRouter.put('/:id', async (request, response) => {
   const blogToUpdate = {
     title: request.body.title,

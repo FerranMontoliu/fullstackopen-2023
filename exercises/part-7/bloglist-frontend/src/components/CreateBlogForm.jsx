@@ -16,6 +16,7 @@ const CreateBlogForm = ({ toggleVisibility }) => {
   const createBlogMutation = useMutation({
     mutationFn: blogService.createBlog,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blog'] })
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
       setInfo(
         notificationDispatch,

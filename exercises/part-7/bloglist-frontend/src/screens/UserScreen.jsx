@@ -1,11 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import userService from '../services/users.js'
-import { Center, Loader, Stack, Text, Title, List, ThemeIcon,  } from '@mantine/core'
+import {
+  Center,
+  List,
+  Loader,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+} from '@mantine/core'
 import { useParams } from 'react-router-dom'
 import { IconArticle } from '@tabler/icons-react'
 
 const UserBlogList = ({ blogs }) => {
-  if (blogs === undefined || blogs === null) {
+  if (blogs === undefined || blogs === null || blogs.length === 0) {
     return <Text>No blogs found for this user</Text>
   }
 
@@ -16,7 +24,7 @@ const UserBlogList = ({ blogs }) => {
       center
       icon={
         <ThemeIcon size={32} radius="xl">
-          <IconArticle size="1rem"/>
+          <IconArticle size="1rem" />
         </ThemeIcon>
       }
     >
