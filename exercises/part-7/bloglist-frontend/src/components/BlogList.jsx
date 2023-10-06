@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import blogService from '../services/blogs'
 import Blog from './Blog.jsx'
+import { Stack, Text } from '@mantine/core'
 
 const BlogList = () => {
   const result = useQuery({
@@ -9,24 +10,24 @@ const BlogList = () => {
   })
 
   if (result.isLoading) {
-    return <div>Loading data...</div>
+    return <Text>Loading data...</Text>
   }
 
   if (result.isError) {
-    return <div>Blog service not available due to problems in server</div>
+    return <Text>Blog service not available due to problems in server</Text>
   }
 
   const blogs = result.data
 
   return (
-    <div className="blog-list--container" style={{ marginTop: '1rem' }}>
+    <Stack my="md">
       {blogs.map((blog) => (
         <Blog
           key={blog.id}
           blog={blog}
         />
       ))}
-    </div>
+    </Stack>
   )
 }
 

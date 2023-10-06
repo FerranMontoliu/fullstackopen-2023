@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import blogService from '../services/blogs.js'
 import { setError, setInfo } from '../utils/notifications.js'
 import { useNotificationDispatch } from '../contexts/NotificationContext.jsx'
+import { Button, Stack, TextInput, Title } from '@mantine/core'
 
 const CreateBlogForm = ({ toggleVisibility }) => {
   const queryClient = useQueryClient()
@@ -37,48 +38,41 @@ const CreateBlogForm = ({ toggleVisibility }) => {
   }
 
   return (
-    <div>
-      <h2>Create new blog</h2>
+    <Stack>
+      <Title order={2}>Create new blog</Title>
 
       <form onSubmit={onSubmit}>
-        <div>
-          Title:
-          <input
-            className="create-blog-form--title-input"
-            type="text"
-            value={title}
+        <Stack>
+          <TextInput
+            label="Title"
+            placeholder="Title"
             name="title"
+            value={title}
             onChange={({ target }) => setTitle(target.value)}
           />
-        </div>
 
-        <div>
-          Author
-          <input
-            className="create-blog-form--author-input"
-            type="text"
-            value={author}
+          <TextInput
+            label="Author"
+            placeholder="Author"
             name="author"
+            value={author}
             onChange={({ target }) => setAuthor(target.value)}
           />
-        </div>
 
-        <div>
-          URL
-          <input
-            className="create-blog-form--url-input"
-            type="text"
-            value={url}
+          <TextInput
+            label="URL"
+            placeholder="URL"
             name="url"
+            value={url}
             onChange={({ target }) => setUrl(target.value)}
           />
-        </div>
 
-        <button className="create-blog-form--submit-btn" type="submit">
-          Create
-        </button>
+          <Button type="submit">
+            Create
+          </Button>
+        </Stack>
       </form>
-    </div>
+    </Stack>
   )
 }
 

@@ -1,5 +1,6 @@
 import { useState, forwardRef, useImperativeHandle } from 'react'
 import PropTypes from 'prop-types'
+import { Button, Stack } from '@mantine/core'
 
 const Toggleable = forwardRef((props, refs) => {
   const [isVisible, setIsVisible] = useState(false)
@@ -18,17 +19,17 @@ const Toggleable = forwardRef((props, refs) => {
   })
 
   return (
-    <div>
-      <div style={hideWhenVisible}>
-        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
-      </div>
+    <Stack>
+      <Stack style={hideWhenVisible}>
+        <Button onClick={toggleVisibility}>{props.buttonLabel}</Button>
+      </Stack>
 
-      <div style={showWhenVisible}>
+      <Stack style={showWhenVisible}>
         {props.children}
 
-        <button onClick={toggleVisibility}>Cancel</button>
-      </div>
-    </div>
+        <Button onClick={toggleVisibility} variant="outline">Cancel</Button>
+      </Stack>
+    </Stack>
   )
 })
 

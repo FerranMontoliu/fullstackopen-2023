@@ -4,13 +4,16 @@ import blogService from '../services/blogs.js'
 import { setError, setInfo } from '../utils/notifications.js'
 import { useNotificationDispatch } from '../contexts/NotificationContext.jsx'
 import { useUserValue } from '../contexts/UserContext.jsx'
+import { Anchor, Button, Card, Group, Stack, Text, Title } from '@mantine/core'
+import { IconThumbUp } from '@tabler/icons-react'
 
 const NonExpandedBlog = ({ blog, handleView }) => (
-  <div className="blog--not-expanded">
-    {blog.title} {blog.author}
+  <Card shadow="md" padding="md" radius="md" withBorder>
+    <Title order={3}>{blog.title}</Title>
+    <Text>{blog.author}</Text>
 
-    <button className="blog--expand-btn" onClick={handleView}>View</button>
-  </div>
+    <Button onClick={handleView} variant="light" mt="sm">View</Button>
+  </Card>
 )
 
 const ExpandedBlog = ({ blog, handleHide }) => {
@@ -64,46 +67,49 @@ const ExpandedBlog = ({ blog, handleHide }) => {
   }
 
   return (
-    <div className="blog--expanded">
-      <p className="blog--title-and-author">{blog.title} {blog.author}
-        <button onClick={handleHide}>Hide</button>
-      </p>
-      <a className="blog--url" href={blog.url} target="_blank" rel="noreferrer">{blog.url}</a>
-      <p className="blog--likes">Likes {blog.likes}
-        <button className="blog--like-btn" onClick={() => handleBlogLiked(blog)}>Like</button>
-      </p>
-      <p className="blog--user">{blog.user?.name}</p>
+    <Card shadow="md" padding="md" radius="md" withBorder>
+      <Title order={3}>{blog.title}</Title>
+      <Text>{blog.author}</Text>
+
+      <Group mt="sm">
+        <Text fw="bold">URL:</Text>
+        <Anchor href={blog.url} target="_blank" rel="noreferrer">{blog.url}</Anchor>
+      </Group>
+
+      <Group>
+        <Text fw="bold">{blog.likes} likes</Text>
+        <Button onClick={() => handleBlogLiked(blog)} variant="light" leftSection={<IconThumbUp size={14} /> }>Like</Button>
+      </Group>
+
+      <Group>
+        <Text fw="bold">User:</Text>
+        <Text>{blog.user?.name}</Text>
+      </Group>
 
       {user.username && user.username === blog.user?.username &&
-            <button className="blog--remove-btn" onClick={() => handleBlogDeleted(blog)}>Remove</button>}
-    </div>
+            <Button onClick={() => handleBlogDeleted(blog)} mt="sm" variant="light">Remove</Button>}
+      <Button onClick={handleHide} variant="outline" mt="sm">Hide</Button>
+    </Card>
   )
 }
 
 const Blog = ({ blog }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
+  if (isExpanded) {
+    return (
+      <ExpandedBlog
+        blog={blog}
+        handleHide={() => setIsExpanded(false)}
+      />
+    )
   }
 
   return (
-    <div style={blogStyle} className="blog--container">
-      {isExpanded
-        ? <ExpandedBlog
-          blog={blog}
-          handleHide={() => setIsExpanded(false)}
-        />
-        : <NonExpandedBlog
-          blog={blog}
-          handleView={() => setIsExpanded(true)}
-        />
-      }
-    </div>
+    <NonExpandedBlog
+      blog={blog}
+      handleView={() => setIsExpanded(true)}
+    />
   )
 }
 

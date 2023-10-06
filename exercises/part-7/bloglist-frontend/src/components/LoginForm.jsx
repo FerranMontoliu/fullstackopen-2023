@@ -4,6 +4,7 @@ import blogService from '../services/blogs.js'
 import { setError, setInfo } from '../utils/notifications.js'
 import { useNotificationDispatch } from '../contexts/NotificationContext.jsx'
 import { useUserDispatch } from '../contexts/UserContext.jsx'
+import { Button, Center, Stack, TextInput, Title } from '@mantine/core'
 
 const LoginForm = () => {
   const [username, setUsername] = useState('')
@@ -34,36 +35,33 @@ const LoginForm = () => {
   }
 
   return (
-    <div>
-      <h2>Log in to application</h2>
+    <Stack>
+      <Title order={2}>Log in to application</Title>
 
       <form onSubmit={onSubmit}>
-        <div>
-          Username
-          <input
+        <Stack>
+          <TextInput
+            label="Username"
+            placeholder="Username"
+            name="username"
             id="username"
-            type="text"
             value={username}
-            name="Username"
-            onChange={({ target }) => setUsername(target.value)}
-          />
-        </div>
+            onChange={({ target }) => setUsername(target.value)}/>
 
-        <div>
-          Password
-          <input
+
+          <TextInput
+            label="Password"
+            placeholder="Password"
+            name="password"
             id="password"
             type="password"
             value={password}
-            name="Password"
-            onChange={({ target }) => setPassword(target.value)}
-          />
-        </div>
+            onChange={({ target }) => setPassword(target.value)} />
 
-        <button id="login-button" type="submit">login</button>
+          <Button id="login-button" type="submit">Log in</Button>
+        </Stack>
       </form>
-    </div>
-
+    </Stack>
   )
 }
 
