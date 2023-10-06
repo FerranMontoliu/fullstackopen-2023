@@ -7,16 +7,7 @@ import { useUserValue } from '../contexts/UserContext.jsx'
 import { Anchor, Button, Card, Group, Stack, Text, Title } from '@mantine/core'
 import { IconThumbUp } from '@tabler/icons-react'
 
-const NonExpandedBlog = ({ blog, handleView }) => (
-  <Card shadow="md" padding="md" radius="md" withBorder>
-    <Title order={3}>{blog.title}</Title>
-    <Text>{blog.author}</Text>
-
-    <Button onClick={handleView} variant="light" mt="sm">View</Button>
-  </Card>
-)
-
-const ExpandedBlog = ({ blog, handleHide }) => {
+const Blog = ({ blog }) => {
   const queryClient = useQueryClient()
   const notificationDispatch = useNotificationDispatch()
   const user = useUserValue()
@@ -88,28 +79,7 @@ const ExpandedBlog = ({ blog, handleHide }) => {
 
       {user.username && user.username === blog.user?.username &&
             <Button onClick={() => handleBlogDeleted(blog)} mt="sm" variant="light">Remove</Button>}
-      <Button onClick={handleHide} variant="outline" mt="sm">Hide</Button>
     </Card>
-  )
-}
-
-const Blog = ({ blog }) => {
-  const [isExpanded, setIsExpanded] = useState(false)
-
-  if (isExpanded) {
-    return (
-      <ExpandedBlog
-        blog={blog}
-        handleHide={() => setIsExpanded(false)}
-      />
-    )
-  }
-
-  return (
-    <NonExpandedBlog
-      blog={blog}
-      handleView={() => setIsExpanded(true)}
-    />
   )
 }
 

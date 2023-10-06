@@ -17,6 +17,12 @@ const getAll = async () => {
   return sortedBlogs
 }
 
+const getById = async (blogId) => {
+  const response = await axios.get(`${baseUrl}/${blogId}`)
+
+  return response.data
+}
+
 const createBlog = async (newObject) => {
   const config = {
     headers: { Authorization: token },
@@ -41,6 +47,7 @@ const deleteBlog = id => {
 
 export default {
   getAll,
+  getById,
   setToken,
   createBlog,
   updateBlog,

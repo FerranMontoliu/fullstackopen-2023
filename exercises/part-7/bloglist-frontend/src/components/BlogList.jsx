@@ -1,7 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
 import blogService from '../services/blogs'
-import Blog from './Blog.jsx'
-import { Center, Loader, Stack, Text } from '@mantine/core'
+import {
+  Button,
+  Card,
+  Center,
+  Group,
+  Loader,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core'
+import { Link } from 'react-router-dom'
 
 const BlogList = () => {
   const result = useQuery({
@@ -10,7 +19,11 @@ const BlogList = () => {
   })
 
   if (result.isLoading) {
-    return <Center><Loader /></Center>
+    return (
+      <Center>
+        <Loader />
+      </Center>
+    )
   }
 
   if (result.isError) {
@@ -22,10 +35,20 @@ const BlogList = () => {
   return (
     <Stack my="md">
       {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-        />
+        <Card key={blog.id} shadow="md" padding="md" radius="md" withBorder>
+          <Group justify="space-between">
+            <Stack>
+              <Title order={3}>{blog.title}</Title>
+              <Text>{blog.author}</Text>
+            </Stack>
+
+            <Link to={`/blogs/${blog.id}`}>
+              <Button variant="light" mt="sm">
+                View
+              </Button>
+            </Link>
+          </Group>
+        </Card>
       ))}
     </Stack>
   )
