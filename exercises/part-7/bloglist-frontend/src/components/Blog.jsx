@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import blogService from '../services/blogs.js'
 import { setError, setInfo } from '../utils/notifications.js'
 import { useNotificationDispatch } from '../contexts/NotificationContext.jsx'
+import { useUserValue } from '../contexts/UserContext.jsx'
 
 const NonExpandedBlog = ({ blog, handleView }) => (
   <div className="blog--not-expanded">
@@ -12,9 +13,10 @@ const NonExpandedBlog = ({ blog, handleView }) => (
   </div>
 )
 
-const ExpandedBlog = ({ user, blog, handleHide }) => {
+const ExpandedBlog = ({ blog, handleHide }) => {
   const queryClient = useQueryClient()
   const notificationDispatch = useNotificationDispatch()
+  const user = useUserValue()
 
   const updateBlogMutation = useMutation({
     mutationFn: blogService.updateBlog,
@@ -78,7 +80,7 @@ const ExpandedBlog = ({ user, blog, handleHide }) => {
   )
 }
 
-const Blog = ({ user, blog }) => {
+const Blog = ({ blog }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
   const blogStyle = {
@@ -93,7 +95,6 @@ const Blog = ({ user, blog }) => {
     <div style={blogStyle} className="blog--container">
       {isExpanded
         ? <ExpandedBlog
-          user={user}
           blog={blog}
           handleHide={() => setIsExpanded(false)}
         />

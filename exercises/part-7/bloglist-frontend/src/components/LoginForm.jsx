@@ -1,17 +1,36 @@
 import { useState } from 'react'
+import loginService from '../services/login.js'
+import blogService from '../services/blogs.js'
+import { setError, setInfo } from '../utils/notifications.js'
+import { useNotificationDispatch } from '../contexts/NotificationContext.jsx'
+import { useUserDispatch } from '../contexts/UserContext.jsx'
 
-const LoginForm = ({ handleLogin }) => {
+const LoginForm = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const afterLogin = () => {
-    setUsername('')
-    setPassword('')
-  }
+  const notificationDispatch = useNotificationDispatch()
+  const userDispatch = useUserDispatch()
 
   const onSubmit = (event) => {
     event.preventDefault()
-    handleLogin(username, password, afterLogin)
+    loginService
+      .login({
+        username,
+        password,
+      })
+      .then((user) => {
+        window.localStorage.setItem('loggedBloglistUser', JSON.stringify(user))
+        blogService.setToken(user.token)
+        userDispatch({ type: 'SET_USER', payload: user })
+        setUsername('')
+        setPassword('')
+        setInfo(notificationDispatch, `Logged in as ${user.name}`)
+      })
+      .catch((error) => {
+        setError(notificationDispatch, error.response.data.error)
+      })
+
   }
 
   return (

@@ -1,49 +1,22 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import blogService from './services/blogs'
-import loginService from './services/login'
 import LoginForm from './components/LoginForm.jsx'
 import AppContent from './components/AppContent.jsx'
 import Notification from './components/Notification.jsx'
 import Toggleable from './components/Toggleable.jsx'
-import { useNotificationDispatch } from './contexts/NotificationContext.jsx'
-import { setError, setInfo } from './utils/notifications.js'
+import { useUser } from './contexts/UserContext.jsx'
 
 const App = () => {
-  const [user, setUser] = useState(null)
-  const notificationDispatch = useNotificationDispatch()
+  const [user, userDispatch] = useUser()
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBloglistUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
-      setUser(user)
+      userDispatch({ type: 'SET_USER', payload: user })
       blogService.setToken(user.token)
     }
   }, [])
-
-  const handleLogin = (username, password, afterLogin) => {
-    loginService
-      .login({
-        username,
-        password,
-      })
-      .then((user) => {
-        window.localStorage.setItem('loggedBloglistUser', JSON.stringify(user))
-        blogService.setToken(user.token)
-        setUser(user)
-        afterLogin()
-        setInfo(notificationDispatch, `Logged in as ${user.name}`)
-      })
-      .catch((error) => {
-        setError(notificationDispatch, error.response.data.error)
-      })
-  }
-
-  const handleLogout = () => {
-    window.localStorage.removeItem('loggedBloglistUser')
-    blogService.setToken(null)
-    setUser(null)
-  }
 
   return (
     <div>
@@ -53,11 +26,11 @@ const App = () => {
 
       {user === null && (
         <Toggleable buttonLabel="Log in">
-          <LoginForm handleLogin={handleLogin} />
+          <LoginForm />
         </Toggleable>
       )}
 
-      {user !== null && <AppContent user={user} handleLogout={handleLogout} />}
+      {user !== null && <AppContent />}
     </div>
   )
 }
