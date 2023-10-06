@@ -24,27 +24,31 @@ const App = () => {
     }
   }, [])
 
+  if (user === null) {
+    return (
+      <Container pt="xl">
+        <AppNotification />
+
+        <Toggleable buttonLabel="Log in">
+          <LoginForm />
+        </Toggleable>
+      </Container>
+    )
+  }
+
   return (
     <Container pt="xl">
       <Stack>
-        {user !== null && <NavBar />}
+        <NavBar />
 
         <AppNotification />
 
-        {user === null && (
-          <Toggleable buttonLabel="Log in">
-            <LoginForm />
-          </Toggleable>
-        )}
-
-        {user !== null && (
-          <Routes>
-            <Route path="/users/:id" element={<UserScreen />} />
-            <Route path="/users" element={<UsersScreen />} />
-            <Route path="/blogs/:id" element={<BlogScreen />} />
-            <Route path="/" element={<BlogsScreen />} />
-          </Routes>
-        )}
+        <Routes>
+          <Route path="/users/:userId" element={<UserScreen />} />
+          <Route path="/users" element={<UsersScreen />} />
+          <Route path="/blogs/:blogId" element={<BlogScreen />} />
+          <Route path="/" element={<BlogsScreen />} />
+        </Routes>
       </Stack>
     </Container>
   )

@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import userService from '../services/users.js'
-import { Loader, Stack, Text, Title, Table } from '@mantine/core'
+import { Loader, Stack, Text, Title, Table, Center } from '@mantine/core'
+import { Link } from 'react-router-dom'
 
 const UsersTable = ({ users }) => {
   const rows = users.map((user) => (
     <Table.Tr key={user.id}>
-      <Table.Td>{user.name}</Table.Td>
+      <Table.Td><Link to={`/users/${user.id}`}>{user.name}</Link></Table.Td>
       <Table.Td>{user.blogs?.length ?? 0}</Table.Td>
     </Table.Tr>
   ))
@@ -30,7 +31,7 @@ const UsersScreen = () => {
   })
 
   if (result.isLoading) {
-    return <Loader />
+    return <Center><Loader /></Center>
   }
 
   if (result.isError) {
@@ -38,8 +39,6 @@ const UsersScreen = () => {
   }
 
   const users = result.data
-
-  console.log(users)
 
   return (
     <Stack>
